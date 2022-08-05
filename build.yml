@@ -7,17 +7,10 @@ pool:
 steps:
 
 - task: DotNetCoreCLI@2
-  displayName: Build
+  displayName: Build and Package
   inputs:
     command: build
-    configuration: Release
-
-- task: DotNetCoreCLI@2
-  displayName: Pack
-  condition: succeeded()
-  inputs:
-    command: pack
-    configuration: Release
+    arguments: '-c Release'
 
 - task: DotNetCoreCLI@2
   displayName: Push
