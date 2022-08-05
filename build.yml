@@ -7,18 +7,20 @@ pool:
 steps:
 
 - task: DotNetCoreCLI@2
+  displayName: Build
   inputs:
     command: build
     configuration: Release
 
 - task: DotNetCoreCLI@2
+  displayName: Pack
   condition: succeeded()
   inputs:
     command: pack
-    nobuild: true
     configuration: Release
 
 - task: DotNetCoreCLI@2
+  displayName: Push
   inputs:
     command: push
     searchPatternPush: 'packages/Release/**.nupkg'
