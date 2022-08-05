@@ -1,3 +1,9 @@
+trigger:
+- v2.2.1-vsmac
+
+pr:
+- v2.2.1-vsmac
+
 pool:
   vmImage: ubuntu-latest
 
