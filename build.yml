@@ -1,0 +1,25 @@
+trigger:
+- v2.2.1-vsmac
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: build
+    configuration: Release
+
+- task: DotNetCoreCLI@2
+  condition: succeeded()
+  inputs:
+    command: pack
+    nobuild: true
+    configuration: Release
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: push
+    searchPatternPush: 'packages/Release/**.nupkg'
+    feedPublish: 'Xamarin'
