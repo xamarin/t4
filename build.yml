@@ -1,6 +1,3 @@
-trigger:
-- v2.2.1-vsmac
-
 pool:
   vmImage: ubuntu-latest
 
@@ -14,6 +11,7 @@ steps:
 
 - task: DotNetCoreCLI@2
   displayName: Push
+  condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'v2.2.1-vsmac'))
   inputs:
     command: push
     searchPatternPush: 'packages/Release/**.nupkg'
