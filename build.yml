@@ -7,6 +7,12 @@ pr:
 pool:
   vmImage: ubuntu-latest
 
+variables:
+- name: Codeql.Enabled
+  value: true
+- name: Codeql.TSAEnabled
+  value: true
+
 steps:
 
 - task: DotNetCoreCLI@2
