@@ -15,8 +15,9 @@ variables:
 
 steps:
 
+# Manually added because it will not auto-inject for some reason
 - task: CodeQL3000Init@0
-  # condition: eq(variables['Build.SourceBranchName'], 'v2.2.1-vsmac')
+  condition: eq(variables['Build.SourceBranchName'], 'v2.2.1-vsmac')
 
 - task: DotNetCoreCLI@2
   displayName: Build and Package
@@ -24,8 +25,9 @@ steps:
     command: build
     arguments: '-c Release'
 
+# Manually added because it will not auto-inject for some reason
 - task: CodeQL3000Finalize@0
-  # condition: eq(variables['Build.SourceBranchName'], 'v2.2.1-vsmac')
+  condition: eq(variables['Build.SourceBranchName'], 'v2.2.1-vsmac')
 
 - task: DotNetCoreCLI@2
   displayName: Push
