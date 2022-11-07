@@ -15,11 +15,21 @@ variables:
 
 steps:
 
+- task: CodeQL3000Init@0
+  # condition: eq(variables['Build.SourceBranchName'], 'v2.2.1-vsmac')
+  inputs:
+    Enabled: true
+
 - task: DotNetCoreCLI@2
   displayName: Build and Package
   inputs:
     command: build
     arguments: '-c Release'
+
+- task: CodeQL3000Finalize
+  # condition: eq(variables['Build.SourceBranchName'], 'v2.2.1-vsmac')
+  inputs:
+    Enabled: true
 
 - task: DotNetCoreCLI@2
   displayName: Push
