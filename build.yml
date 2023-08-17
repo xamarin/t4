@@ -5,12 +5,16 @@ pr:
 - v2.2.1-vsmac
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'macos-latest'
 
 variables:
 - name: Codeql.Enabled
   value: true
 - name: Codeql.TSAEnabled
+  value: true
+- name: Packaging.EnableSBOMSigning
+  value: true
+- name: BUILDSECMON_OPT_IN
   value: true
 
 steps:
@@ -36,3 +40,34 @@ steps:
     command: push
     searchPatternPush: 'packages/Release/**.nupkg'
     feedPublish: 'Xamarin'
+
+- task: Bash@3
+  displayName: 'Copy files for SBOM'
+  inputs:
+    targetType: 'inline'
+    script: |
+      mkdir -p sbom/Mono.TextTemplating
+      mkdir -p sbom/Mono.TextTemplating.Roslyn
+      mkdir -p sbom/dotnet-t4
+      mkdir -p sbom/TextTransform
+
+      cp -R Mono.TextTemplating/bin/Release sbom/Mono.TextTemplating
+      cp -R Mono.TextTemplating.Roslyn/bin/Release sbom/Mono.TextTemplating.Roslyn
+      cp -R dotnet-t4/bin/Release sbom/dotnet-t4
+      cp -R TextTransform/bin/Release sbom/TextTransform
+    workingDirectory: '$(Build.SourcesDirectory)'
+
+- task: ManifestGeneratorTask@0
+  inputs:
+    PackageName: 'xamarin-t4'
+    BuildDropPath: '$(Build.SourcesDirectory)/sbom'
+    ManifestDirPath: '$(Build.SourcesDirectory)'
+    BuildComponentPath: '$(Build.SourcesDirectory)'
+    AdditionalComponentDetectorArgs: '--DirectoryExclusionList **/Tests/**;**/packages/**'
+  displayName: 'Generating SBOM'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: '$(Build.SourcesDirectory)/_manifest'
+    artifactName: SBOM
+  displayName: Publish SBOM

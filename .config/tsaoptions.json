@@ -1,10 +1,17 @@
 {
-    "instanceUrl": "https://devdiv.visualstudio.com/",
-    "template": "TFSDEVDIV",
-    "projectName": "DEVDIV",
-    "areaPath": "DevDiv\\VS for Mac\\IDE Platform\\Tools\\T4",
-    "iterationPath": "DevDiv",
-    "notificationAliases": [ "vsmac-engineering@microsoft.com" ],
-    "repositoryName": "t4",
-    "codebaseName": "t4"
+  "tsaVersion": "TsaV2",
+  "codebase": "NewOrUpdate",
+  "codebaseName": "xamarin_t4_vsmac",
+  "tsaStamp": "DevDiv",
+  "tsaEnvironment": "PROD",
+  "notificationAliases": [
+    "vsmac-engineering@microsoft.com"
+  ],
+  "codebaseAdmins": [
+    "REDMOND\\vsengxamarin"
+  ],
+  "instanceUrl": "https://devdiv.visualstudio.com",
+  "projectName": "DevDiv",
+  "areaPath": "DevDiv\\VS for Mac\\IDE Platform\\Tools\\T4",
+  "alltools": true
 }
