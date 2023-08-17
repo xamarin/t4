@@ -9,6 +9,31 @@ pr: none
 trigger: none
 
 jobs:
+- job: Build
+  pool:
+    vmImage: ubuntu-latest
+
+  variables:
+  - name: Codeql.Enabled
+    value: true
+  - name: Codeql.TSAEnabled
+    value: true
+  - name: Codeql.TSAOptionsPath
+    value: '$(Build.SourcesDirectory)/.config/tsaoptions.json'
+
+  steps:
+
+  - task: CodeQL3000Init@0
+
+  - task: DotNetCoreCLI@2
+    displayName: Build and Package
+    inputs:
+      command: build
+      arguments: '-c Release'
+
+  - task: CodeQL3000Finalize@0
+
+
 - job: Analysis_Job
   displayName: Analysis
   pool: VSEngStaticAnalysis-Test
