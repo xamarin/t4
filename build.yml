@@ -5,7 +5,7 @@ pr:
 - v2.2.1-vsmac
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: 'macos-latest'
 
 variables:
 - name: Codeql.Enabled

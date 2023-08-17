@@ -11,7 +11,7 @@ trigger: none
 jobs:
 - job: Build
   pool:
-    vmImage: ubuntu-latest
+    vmImage: 'macos-latest'
 
   variables:
   - name: Codeql.Enabled
