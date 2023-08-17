@@ -14,6 +14,8 @@ variables:
   value: true
 - name: Packaging.EnableSBOMSigning
   value: true
+- name: BUILDSECMON_OPT_IN
+  value: true
 
 steps:
 
