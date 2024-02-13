@@ -4,70 +4,95 @@ trigger:
 pr:
 - v2.2.1-vsmac
 
-pool:
-  vmImage: 'macos-latest'
+resources:
+  repositories:
+  - repository: 1esPipelines
+    type: git
+    name: 1ESPipelineTemplates/1ESPipelineTemplates
+    ref: refs/tags/release
 
-variables:
-- name: Codeql.Enabled
-  value: true
-- name: Codeql.TSAEnabled
-  value: true
-- name: Packaging.EnableSBOMSigning
-  value: true
-- name: BUILDSECMON_OPT_IN
-  value: true
+extends:
+  template: v1/1ES.Official.PipelineTemplate.yml@1esPipelines
+  parameters:
+    sdl:
+      sourceAnalysisPool:
+        name: AzurePipelines-EO
+        image: AzurePipelinesWindows2022compliantGPT
+        os: windows
+      sbom:
+        enabled: false
 
-steps:
+    stages:
+    - stage: Build
+      jobs:
+      - job: Build
 
-# Manually added because it will not auto-inject for some reason
-- task: CodeQL3000Init@0
-  condition: eq(variables['Build.SourceBranchName'], 'v2.2.1-vsmac')
+        pool:
+          name: 'Azure Pipelines'
+          vmImage: 'macos-latest'
+          os: macOS
 
-- task: DotNetCoreCLI@2
-  displayName: Build and Package
-  inputs:
-    command: build
-    arguments: '-c Release'
+        variables:
+        - name: Codeql.Enabled
+          value: true
+        - name: Codeql.TSAEnabled
+          value: true
+        - name: Packaging.EnableSBOMSigning
+          value: true
+        - name: BUILDSECMON_OPT_IN
+          value: true
 
-# Manually added because it will not auto-inject for some reason
-- task: CodeQL3000Finalize@0
-  condition: eq(variables['Build.SourceBranchName'], 'v2.2.1-vsmac')
+        steps:
 
-- task: DotNetCoreCLI@2
-  displayName: Push
-  condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'v2.2.1-vsmac'))
-  inputs:
-    command: push
-    searchPatternPush: 'packages/Release/**.nupkg'
-    feedPublish: 'Xamarin'
+        # Manually added because it will not auto-inject for some reason
+        - task: CodeQL3000Init@0
+          condition: eq(variables['Build.SourceBranchName'], 'v2.2.1-vsmac')
 
-- task: Bash@3
-  displayName: 'Copy files for SBOM'
-  inputs:
-    targetType: 'inline'
-    script: |
-      mkdir -p sbom/Mono.TextTemplating
-      mkdir -p sbom/Mono.TextTemplating.Roslyn
-      mkdir -p sbom/dotnet-t4
-      mkdir -p sbom/TextTransform
+        - task: DotNetCoreCLI@2
+          displayName: Build and Package
+          inputs:
+            command: build
+            arguments: '-c Release'
 
-      cp -R Mono.TextTemplating/bin/Release sbom/Mono.TextTemplating
-      cp -R Mono.TextTemplating.Roslyn/bin/Release sbom/Mono.TextTemplating.Roslyn
-      cp -R dotnet-t4/bin/Release sbom/dotnet-t4
-      cp -R TextTransform/bin/Release sbom/TextTransform
-    workingDirectory: '$(Build.SourcesDirectory)'
+        # Manually added because it will not auto-inject for some reason
+        - task: CodeQL3000Finalize@0
+          condition: eq(variables['Build.SourceBranchName'], 'v2.2.1-vsmac')
 
-- task: ManifestGeneratorTask@0
-  inputs:
-    PackageName: 'xamarin-t4'
-    BuildDropPath: '$(Build.SourcesDirectory)/sbom'
-    ManifestDirPath: '$(Build.SourcesDirectory)'
-    BuildComponentPath: '$(Build.SourcesDirectory)'
-    AdditionalComponentDetectorArgs: '--DirectoryExclusionList **/Tests/**;**/packages/**'
-  displayName: 'Generating SBOM'
+        - task: 1ES.PublishNuget@1
+          displayName: Push
+          condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'v2.2.1-vsmac'))
+          inputs:
+            packagesToPush: 'packages/Release/**.nupkg'
+            packageParentPath: 'packages/Release'
+            feedPublish: 'Xamarin'
 
-- task: PublishBuildArtifacts@1
-  inputs:
-    pathToPublish: '$(Build.SourcesDirectory)/_manifest'
-    artifactName: SBOM
-  displayName: Publish SBOM
+        - task: Bash@3
+          displayName: 'Copy files for SBOM'
+          inputs:
+            targetType: 'inline'
+            script: |
+              mkdir -p sbom/Mono.TextTemplating
+              mkdir -p sbom/Mono.TextTemplating.Roslyn
+              mkdir -p sbom/dotnet-t4
+              mkdir -p sbom/TextTransform
+
+              cp -R Mono.TextTemplating/bin/Release sbom/Mono.TextTemplating
+              cp -R Mono.TextTemplating.Roslyn/bin/Release sbom/Mono.TextTemplating.Roslyn
+              cp -R dotnet-t4/bin/Release sbom/dotnet-t4
+              cp -R TextTransform/bin/Release sbom/TextTransform
+            workingDirectory: '$(Build.SourcesDirectory)'
+
+        - task: ManifestGeneratorTask@0
+          inputs:
+            PackageName: 'xamarin-t4'
+            BuildDropPath: '$(Build.SourcesDirectory)/sbom'
+            ManifestDirPath: '$(Build.SourcesDirectory)'
+            BuildComponentPath: '$(Build.SourcesDirectory)'
+            AdditionalComponentDetectorArgs: '--DirectoryExclusionList **/Tests/**;**/packages/**'
+          displayName: 'Generating SBOM'
+
+        - task: 1ES.PublishPipelineArtifact@1
+          inputs:
+            targetPath: '$(Build.SourcesDirectory)/_manifest'
+            artifactName: SBOM
+          displayName: Publish SBOM
