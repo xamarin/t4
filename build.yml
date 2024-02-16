@@ -60,7 +60,8 @@ extends:
 
         - task: 1ES.PublishNuget@1
           displayName: Push
-          condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'v2.2.1-vsmac'))
+          condition: false
+          #condition: and(succeeded(), eq(variables['Build.SourceBranchName'], 'v2.2.1-vsmac'))
           inputs:
             packagesToPush: 'packages/Release/**.nupkg'
             packageParentPath: 'packages/Release'
@@ -90,6 +91,12 @@ extends:
             BuildComponentPath: '$(Build.SourcesDirectory)'
             AdditionalComponentDetectorArgs: '--DirectoryExclusionList **/Tests/**;**/packages/**'
           displayName: 'Generating SBOM'
+
+        - task: 1ES.PublishPipelineArtifact@1
+          inputs:
+            targetPath: 'packages/Release'
+            artifactName: NuGet
+          displayName: Publish NuGet packages
 
         - task: 1ES.PublishPipelineArtifact@1
           inputs:
